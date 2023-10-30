@@ -1,5 +1,8 @@
 {
   "compilerOptions": {
+    "jsx": "react-jsx",
+    "target": "es5",
+    "downlevelIteration": true,
     "noEmit": false,
     "declaration": true,
     "emitDeclarationOnly": true,

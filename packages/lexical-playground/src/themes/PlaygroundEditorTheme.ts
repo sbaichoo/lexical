@@ -73,8 +73,8 @@ const theme: EditorThemeClasses = {
       listitem: 'PlaygroundEditorTheme__nestedListItem',
     },
     olDepth: [
-      'PlaygroundEditorTheme__ol1',
       'PlaygroundEditorTheme__ol2',
+      'PlaygroundEditorTheme__ol1',
       'PlaygroundEditorTheme__ol3',
       'PlaygroundEditorTheme__ol4',
       'PlaygroundEditorTheme__ol5',

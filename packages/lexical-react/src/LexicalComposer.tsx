@@ -99,6 +99,8 @@ export function LexicalComposer({initialConfig, children}: Props): JSX.Element {
   useLayoutEffect(() => {
     const isEditable = initialConfig.editable;
     const [editor] = composerContext;
+    // eslint-disable-next-line no-console
+    console.log('isEditable', isEditable);
     editor.setEditable(isEditable !== undefined ? isEditable : true);
 
     // We only do this for init

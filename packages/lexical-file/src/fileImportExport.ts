@@ -27,7 +27,7 @@ export function importFile(editor: LexicalEditor) {
   });
 }
 
-function readTextFileFromSystem(callback: (text: string) => void) {
+export function readTextFileFromSystem(callback: (text: string) => void) {
   const input = document.createElement('input');
   input.type = 'file';
   input.accept = '.lexical';
@@ -50,7 +50,7 @@ function readTextFileFromSystem(callback: (text: string) => void) {
   input.click();
 }
 
-type DocumentJSON = {
+export type DocumentJSON = {
   editorState: EditorState;
   lastSaved: number;
   source: string | 'Lexical';

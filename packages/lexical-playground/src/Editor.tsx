@@ -49,6 +49,7 @@ import ExcalidrawPlugin from './plugins/ExcalidrawPlugin';
 import FigmaPlugin from './plugins/FigmaPlugin';
 import FloatingLinkEditorPlugin from './plugins/FloatingLinkEditorPlugin';
 import FloatingTextFormatToolbarPlugin from './plugins/FloatingTextFormatToolbarPlugin';
+import HTMLGeneratorPlugin from './plugins/HTMLGeneratorPlugin';
 import ImagesPlugin from './plugins/ImagesPlugin';
 import InlineImagePlugin from './plugins/InlineImagePlugin';
 import KeywordsPlugin from './plugins/KeywordsPlugin';
@@ -78,7 +79,12 @@ const skipCollaborationInit =
   // @ts-ignore
   window.parent != null && window.parent.frames.right === window;
 
-export default function Editor(): JSX.Element {
+export interface EditorProps {
+  viewOnly: boolean;
+}
+
+export default function Editor({viewOnly}: EditorProps): JSX.Element {
+  viewOnly = true;
   const {historyState} = useSharedHistoryContext();
   const {
     settings: {
@@ -95,7 +101,8 @@ export default function Editor(): JSX.Element {
       tableCellBackgroundColor,
     },
   } = useSettings();
-  const isEditable = useLexicalEditable();
+  const isEditableOr = useLexicalEditable();
+  const isEditable = isEditableOr && viewOnly;
   const text = isCollab
     ? 'Enter some collaborative rich text...'
     : isRichText
@@ -142,7 +149,9 @@ export default function Editor(): JSX.Element {
 
   return (
     <>
-      {isRichText && <ToolbarPlugin setIsLinkEditMode={setIsLinkEditMode} />}
+      {!viewOnly && isRichText && (
+        <ToolbarPlugin setIsLinkEditMode={setIsLinkEditMode} />
+      )}
       <div
         className={`editor-container ${showTreeView ? 'tree-view' : ''} ${
           !isRichText ? 'plain-text' : ''
@@ -154,7 +163,7 @@ export default function Editor(): JSX.Element {
         <ComponentPickerPlugin />
         <EmojiPickerPlugin />
         <AutoEmbedPlugin />
-
+        {/* eslint-disable-next-line no-console */}
         <MentionsPlugin />
         <EmojisPlugin />
         <HashtagPlugin />
@@ -177,7 +186,9 @@ export default function Editor(): JSX.Element {
             )}
             <RichTextPlugin
               contentEditable={
-                <div className="editor-scroller">
+                <div
+                  style={!viewOnly ? {resize: 'vertical'} : {resize: 'none'}}
+                  className="editor-scroller">
                   <div className="editor" ref={onRef}>
                     <ContentEditable />
                   </div>
@@ -228,6 +239,7 @@ export default function Editor(): JSX.Element {
             <CollapsiblePlugin />
             <PageBreakPlugin />
             <LayoutPlugin />
+            <HTMLGeneratorPlugin />
             {floatingAnchorElem && !isSmallWidthViewport && (
               <>
                 <DraggableBlockPlugin anchorElem={floatingAnchorElem} />
@@ -266,9 +278,9 @@ export default function Editor(): JSX.Element {
         {isAutocomplete && <AutocompletePlugin />}
         <div>{showTableOfContents && <TableOfContentsPlugin />}</div>
         {shouldUseLexicalContextMenu && <ContextMenuPlugin />}
-        <ActionsPlugin isRichText={isRichText} />
+        {!viewOnly && <ActionsPlugin isRichText={isRichText} />}
       </div>
-      {showTreeView && <TreeViewPlugin />}
+      {!viewOnly && showTreeView && <TreeViewPlugin />}
     </>
   );
 }

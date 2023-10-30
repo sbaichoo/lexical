@@ -375,7 +375,7 @@ function printGridSelection(selection: GridSelection): string {
   return `: grid\n  └ { grid: ${selection.gridKey}, anchorCell: ${selection.anchor.key}, focusCell: ${selection.focus.key} }`;
 }
 
-function generateContent(
+export function generateContent(
   editor: LexicalEditor,
   commandsLog: ReadonlyArray<LexicalCommand<unknown> & {payload: unknown}>,
   exportDOM: boolean,

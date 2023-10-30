@@ -189,7 +189,8 @@
       "shared/warnOnlyOnce": ["./packages/shared/src/warnOnlyOnce.ts"],
       "shared/environment": ["./packages/shared/src/environment.ts"],
       "shared/useLayoutEffect": ["./packages/shared/src/useLayoutEffect.ts"]
-    }
+    },
+    "allowSyntheticDefaultImports": true
   },
   "include": ["./libdefs", "./packages"],
   "exclude": [
