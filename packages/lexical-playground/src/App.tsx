@@ -15,6 +15,7 @@ import * as React from 'react';
 import {Route, Routes} from 'react-router-dom';
 
 import Home from '../../app/component/home/Home';
+import Snow from '../../app/component/home/Snow';
 import {isDevPlayground} from './appSettings';
 import {SettingsContext, useSettings} from './context/SettingsContext';
 import {SharedAutocompleteContext} from './context/SharedAutocompleteContext';
@@ -29,6 +30,7 @@ import TestRecorderPlugin from './plugins/TestRecorderPlugin';
 import TypingPerfPlugin from './plugins/TypingPerfPlugin';
 import Settings from './Settings';
 import PlaygroundEditorTheme from './themes/PlaygroundEditorTheme';
+import PlaygroundEditorThemeV1 from './themes/PlaygroundEditorThemeV1';
 
 console.warn(
   'If you are profiling the playground app, please ensure you turn off the debug view. You can disable it by pressing on the settings control in the bottom-left of your screen and toggling the debug view setting.',
@@ -114,13 +116,13 @@ function prepopulatedRichText() {
   }
 }
 
-function App({viewOnly}: EditorProps): JSX.Element {
+function App({editEnabled}: EditorProps): JSX.Element {
   const {
     settings: {isCollab, emptyEditor, measureTypingPerf},
   } = useSettings();
 
   const initialConfig = {
-    editable: !viewOnly,
+    editable: editEnabled,
     editorState: isCollab
       ? null
       : emptyEditor
@@ -131,7 +133,7 @@ function App({viewOnly}: EditorProps): JSX.Element {
     onError: (error: Error) => {
       throw error;
     },
-    theme: PlaygroundEditorTheme,
+    theme: editEnabled ? PlaygroundEditorTheme : PlaygroundEditorThemeV1,
   };
 
   return (
@@ -145,7 +147,7 @@ function App({viewOnly}: EditorProps): JSX.Element {
               </a>
             </header>
             <div className="editor-shell">
-              <Editor viewOnly={viewOnly} />
+              <Editor editEnabled={editEnabled} />
             </div>
             <Settings />
             {isDevPlayground ? <DocsPlugin /> : null}
@@ -167,7 +169,7 @@ export default function PlaygroundApp(): JSX.Element {
         path="/"
         element={
           <SettingsContext>
-            <App viewOnly={true} />
+            <App editEnabled={true} />
             <a
               href="https://github.com/facebook/lexical/tree/main/packages/lexical-playground"
               className="github-corner"
@@ -207,6 +209,9 @@ export default function PlaygroundApp(): JSX.Element {
       />
 
       <Route path={'/products'} element={<Home />} />
+      <Route path={'/snow'} element={<Snow />} />
+      <Route path={'/app'} element={<App editEnabled={false} />} />
+      <Route path={'/editor'} element={<App editEnabled={true} />} />
     </Routes>
   );
 }

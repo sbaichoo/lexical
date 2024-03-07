@@ -6,9 +6,14 @@
  *
  */
 
+// @ts-ignore
+import type {MathfieldElementAttributes} from 'mathlive';
+
 import './KatexEquationAlterer.css';
 
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
+// @ts-ignore
+import * as mathe from 'mathlive';
 import * as React from 'react';
 import {useCallback, useState} from 'react';
 import {ErrorBoundary} from 'react-error-boundary';
@@ -21,6 +26,15 @@ type Props = {
   onConfirm: (equation: string, inline: boolean) => void;
 };
 
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace JSX {
+    interface IntrinsicElements {
+      ['math-field']: MathfieldElementAttributes;
+    }
+  }
+}
+
 export default function KatexEquationAlterer({
   onConfirm,
   initialEquation = '',
@@ -30,20 +44,36 @@ export default function KatexEquationAlterer({
   const [inline, setInline] = useState<boolean>(true);
 
   const onClick = useCallback(() => {
-    onConfirm(equation, inline);
+    if (equation === '') {
+      onConfirm(mathfieldElement.value, inline);
+    } else {
+      onConfirm(equation, inline);
+    }
   }, [onConfirm, equation, inline]);
 
   const onCheckboxChange = useCallback(() => {
     setInline(!inline);
   }, [setInline, inline]);
 
+  const mathfieldElement = new mathe.MathfieldElement();
+
   return (
     <>
+      <div className="KatexEquationAlterer_defaultRow">Visualization</div>
+      <div className="KatexEquationAlterer_centerRow">
+        <ErrorBoundary onError={(e) => editor._onError(e)} fallback={null}>
+          <KatexRenderer
+            equation={equation}
+            inline={false}
+            onDoubleClick={() => null}
+          />
+        </ErrorBoundary>
+      </div>
       <div className="KatexEquationAlterer_defaultRow">
         Inline
         <input type="checkbox" checked={inline} onChange={onCheckboxChange} />
       </div>
-      <div className="KatexEquationAlterer_defaultRow">Equation </div>
+      <div className="KatexEquationAlterer_defaultRow">Equation</div>
       <div className="KatexEquationAlterer_centerRow">
         {inline ? (
           <input
@@ -63,16 +93,16 @@ export default function KatexEquationAlterer({
           />
         )}
       </div>
-      <div className="KatexEquationAlterer_defaultRow">Visualization </div>
-      <div className="KatexEquationAlterer_centerRow">
-        <ErrorBoundary onError={(e) => editor._onError(e)} fallback={null}>
-          <KatexRenderer
-            equation={equation}
-            inline={false}
-            onDoubleClick={() => null}
-          />
-        </ErrorBoundary>
+      <div className="KatexEquationAlterer_defaultRow">Math Keyboard</div>
+
+      <div
+        ref={(el) => {
+          // eslint-disable-next-line @typescript-eslint/no-var-requires
+          el?.appendChild(mathfieldElement);
+        }}>
+        {mathfieldElement.innerHTML}
       </div>
+
       <div className="KatexEquationAlterer_dialogActions">
         <Button onClick={onClick}>Confirm</Button>
       </div>

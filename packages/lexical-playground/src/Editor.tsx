@@ -72,6 +72,7 @@ import TreeViewPlugin from './plugins/TreeViewPlugin';
 import TwitterPlugin from './plugins/TwitterPlugin';
 import YouTubePlugin from './plugins/YouTubePlugin';
 import PlaygroundEditorTheme from './themes/PlaygroundEditorTheme';
+import PlaygroundEditorThemeV1 from './themes/PlaygroundEditorThemeV1';
 import ContentEditable from './ui/ContentEditable';
 import Placeholder from './ui/Placeholder';
 
@@ -80,11 +81,11 @@ const skipCollaborationInit =
   window.parent != null && window.parent.frames.right === window;
 
 export interface EditorProps {
-  viewOnly: boolean;
+  editEnabled: boolean;
 }
 
-export default function Editor({viewOnly}: EditorProps): JSX.Element {
-  viewOnly = true;
+export default function Editor({editEnabled}: EditorProps): JSX.Element {
+  // eslint-disable-next-line no-console
   const {historyState} = useSharedHistoryContext();
   const {
     settings: {
@@ -101,13 +102,13 @@ export default function Editor({viewOnly}: EditorProps): JSX.Element {
       tableCellBackgroundColor,
     },
   } = useSettings();
-  const isEditableOr = useLexicalEditable();
-  const isEditable = isEditableOr && viewOnly;
-  const text = isCollab
+  const isEditable = useLexicalEditable();
+  let text = isCollab
     ? 'Enter some collaborative rich text...'
     : isRichText
     ? 'Enter some rich text...'
     : 'Enter some plain text...';
+  text = editEnabled ? text : '';
   const placeholder = <Placeholder>{text}</Placeholder>;
   const [floatingAnchorElem, setFloatingAnchorElem] =
     useState<HTMLDivElement | null>(null);
@@ -127,7 +128,7 @@ export default function Editor({viewOnly}: EditorProps): JSX.Element {
     onError: (error: Error) => {
       throw error;
     },
-    theme: PlaygroundEditorTheme,
+    theme: editEnabled ? PlaygroundEditorTheme : PlaygroundEditorThemeV1,
   };
 
   useEffect(() => {
@@ -149,7 +150,7 @@ export default function Editor({viewOnly}: EditorProps): JSX.Element {
 
   return (
     <>
-      {!viewOnly && isRichText && (
+      {editEnabled && isRichText && (
         <ToolbarPlugin setIsLinkEditMode={setIsLinkEditMode} />
       )}
       <div
@@ -187,7 +188,11 @@ export default function Editor({viewOnly}: EditorProps): JSX.Element {
             <RichTextPlugin
               contentEditable={
                 <div
-                  style={!viewOnly ? {resize: 'vertical'} : {resize: 'none'}}
+                  style={
+                    editEnabled
+                      ? {resize: 'vertical'}
+                      : {display: 'none', resize: 'none'}
+                  }
                   className="editor-scroller">
                   <div className="editor" ref={onRef}>
                     <ContentEditable />
@@ -239,7 +244,7 @@ export default function Editor({viewOnly}: EditorProps): JSX.Element {
             <CollapsiblePlugin />
             <PageBreakPlugin />
             <LayoutPlugin />
-            <HTMLGeneratorPlugin />
+            <HTMLGeneratorPlugin editEnabled={editEnabled} />
             {floatingAnchorElem && !isSmallWidthViewport && (
               <>
                 <DraggableBlockPlugin anchorElem={floatingAnchorElem} />
@@ -278,9 +283,9 @@ export default function Editor({viewOnly}: EditorProps): JSX.Element {
         {isAutocomplete && <AutocompletePlugin />}
         <div>{showTableOfContents && <TableOfContentsPlugin />}</div>
         {shouldUseLexicalContextMenu && <ContextMenuPlugin />}
-        {!viewOnly && <ActionsPlugin isRichText={isRichText} />}
+        {editEnabled && <ActionsPlugin isRichText={isRichText} />}
       </div>
-      {!viewOnly && showTreeView && <TreeViewPlugin />}
+      {editEnabled && showTreeView && <TreeViewPlugin />}
     </>
   );
 }

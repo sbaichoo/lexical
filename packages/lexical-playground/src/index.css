@@ -532,6 +532,10 @@ i.import {
   background-image: url(images/icons/upload.svg);
 }
 
+i.math {
+  background-image: url(images/icons/math.svg);
+}
+
 i.export {
   background-image: url(images/icons/download.svg);
 }
